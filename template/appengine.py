@@ -20,10 +20,22 @@ def tempres(temp,params,**kwargs):
     return textres(template.render(tmp, params),**kwargs)
 def jsonres(content):
     return webapp2.Response(json.dumps(content))
-def getjson(request):
+def passres(uri):
+    return webapp2.redirect(uri)
+def requestjson(request):
     return json.loads(request.body)
-def urlformat(request,formatstring,**kwargs):
-    return formatstring.format(host=request.host_url,path=request.path,query=request.query_string,**kwargs)
+def requestargs(request):
+    result={}
+    result.update(request.GET)
+    result.update(request.POST)
+    return result
+def urlformat(formatstring,request,params):
+    kwargs={}
+    if params:
+        kwargs.update({"params":"&".join("{0}={1}".format(k,v) for k,v in (params or {}).items())})
+    if request:
+        kwargs.update({"host":request.host_url,"path": request.path,"query":request.query_string})
+    return formatstring.format(**kwargs)
 
 class BlobHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, photo_key):

@@ -96,15 +96,16 @@ def request(method, url, param,**kwargs):
 			param=tobyte(urlencode(param))
 	time.sleep(context.get("sleep",0))
 	code,body=httpfunc(method,url,header,param)
-	t=context.get("datatype","raw")
-	if t=="raw":
-		return body
-	if t=="text":
-		return totext(body)
-	if t=="query":
-		return {k: v for k, v in [i.split("=") for i in body.split("&")]}
-	if t=="json":
-		return json.loads(totext(body))
+	datatype=context.get("datatype","raw")
+	if datatype=="raw":
+		body=body
+	if datatype=="text":
+		body=totext(body)
+	if datatype=="query":
+		body={k: v for k, v in [i.split("=") for i in body.split("&")]}
+	if datatype=="json":
+		body=json.loads(totext(body))
+	return code,body
 
 if __name__ == '__main__':
 	print(datauri(datauri("%abc%")))
