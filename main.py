@@ -1,6 +1,7 @@
 # -encoding:utf-8
 from template.appengine import *
 from template.unit import *
+from datetime import datetime,timedelta
 CLIENT_ID="342204927924.592004947603"
 CLIENT_SECRET="fd05589134031d6b61048a445041ac13"
 OAUTH_TOKEN="xoxb-342204927924-595037105715-V0Cn4SmjDyQiVYrYuy5dUii2"
@@ -29,8 +30,22 @@ def helloslack(request,*args,**kwargs):
 				unit(area="reaction",smalljson=c).put()
 def hello(request):
 	n=unit.query().order(-unit.born).fetch()
-	return jsonres([i.smalljson for i in n])
+	return jsonres({
+		"date":datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+		"json":[i.smalljson for i in n]
+	})
+def datetimecast(m):
+	format="%Y-%m-%d"
+	tz=timedelta(hours=+9)
+	return datetime.strptime((m+tz).strftime(format),format)-tz
+
 def presence(request):
+	presence=unit.query(unit.area=="presence",unit.born>(datetimecast(datetime.now())-timedelta(days=1))).fetch()
+	unit.delete_multi(i.key for i in presence[1:])
+	if not presence:
+		presence=unit(area="presence")
+		presence.put()
+
 	result=[]
 	status,bodylist=http.get("https://slack.com/api/users.list", {'token': OAUTH_TOKEN},datatype="json")
 	if bodylist["ok"]:

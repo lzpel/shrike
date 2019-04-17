@@ -5,6 +5,7 @@ from google.appengine.ext import blobstore, ndb
 class unit(ndb.Model):
 	# 分類
 	born = ndb.DateTimeProperty(auto_now_add=True)
+	last = ndb.DateTimeProperty(auto_now=True)
 	area = ndb.StringProperty()
 	kusr = ndb.KeyProperty()
 	kart = ndb.KeyProperty()
