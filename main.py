@@ -5,7 +5,7 @@ from datetime import datetime,timedelta
 INTERVAL_MIN=10
 CLIENT_ID="342204927924.592004947603"
 CLIENT_SECRET="fd05589134031d6b61048a445041ac13"
-OAUTH_BOT_TOKEN= "xoxb-342204927924-595037105715-V0Cn4SmjDyQiVYrYuy5dUii2"
+OAUTH_BOT_TOKEN= "xoxb-19423426689-612454598432-5FKIs2IVpXqz6fDArb0EewKY"
 def testfunc(request, *args, **kwargs):
 	r=http.get("http://info.cern.ch/hypertext/WWW/TheProject.html")
 	return textres('You requested product<br>{0}<br>{1}'.format(json.dumps(args),json.dumps(kwargs)))

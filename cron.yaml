@@ -1,0 +1,4 @@
+﻿cron:
+- description: "presence check"
+  url: /presence
+  schedule: every 10 minutes
