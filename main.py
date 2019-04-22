@@ -48,7 +48,8 @@ def datetimecast(m):
 	return datetime.strptime((m + tz).strftime(format), format) - tz
 
 
-def postpresence(request, presence):
+def postpresence(request, presence)
+	return
 	text = str()
 	for i in presence.smalljson:
 		text += i["name"]
