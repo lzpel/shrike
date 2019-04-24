@@ -70,6 +70,7 @@ def presence_adaypost(request):
 						'channel': i['id'],
 						'text': "\n".join(i["presencetext"] for i in presence.smalljson),
 					})
+	return jsonres(presence.smalljson)
 def presence_adaymake(request):
 	status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
 	if bodylist["ok"]:
