@@ -1,4 +1,8 @@
 ﻿cron:
 - description: "presence check"
-  url: /presence
-  schedule: every 10 minutes
+  url: /presence_time
+  schedule: every 5 minutes synchronized
+- description: "presence everyday"
+  url: /presence_aday
+  schedule: every day 00:00
+  timezone: Japan

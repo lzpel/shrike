@@ -36,19 +36,10 @@ def helloslack(request, *args, **kwargs):
 
 
 def hello(request):
-	n = unit.query().order(-unit.born).fetch()
-	return jsonres({
-		"date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-		"json": [i.smalljson for i in n]
-	})
+	return jsonres([i.smalljson for i in unit.query().order(-unit.born).fetch()])
 
 
-def datetimecast(m):
-	format, tz = "%Y-%m-%d", timedelta(hours=+9)
-	return datetime.strptime((m + tz).strftime(format), format) - tz
-
-
-def postpresence(request, presence)
+def postpresence(request, presence):
 	return
 	text = str()
 	for i in presence.smalljson:
@@ -66,18 +57,25 @@ def postpresence(request, presence)
 					'text': text,
 				})
 
-
-def presence(request):
-	presence = unit.query(unit.area == "presence").order(-unit.born).fetch()
-	# 最新以外不要
-	unit.delete_multi(i.key for i in presence[1:])
-	presence = presence and presence[0]
-	# 当日チェックと投稿
-	if presence and datetimecast(presence.born) < datetimecast(datetime.now()):
-		postpresence(request, presence)
-		presence = None
-	# 存在しないなら作成
-	if not presence:
+def presence_aday(request):
+	presence = unit.query(unit.area == "presence").order(-unit.born).get()
+	if presence:
+		text = str()
+		for i in presence.smalljson:
+			text += i["name"]
+			for i, n in enumerate(i["presence"]):
+				text += "01"[int(n)]
+			text += "\n"
+		status, bodylist = http.get("https://slack.com/api/channels.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
+		if bodylist["ok"]:
+			for i in bodylist["channels"]:
+				if i["is_member"]:
+					http.post("https://slack.com/api/chat.postMessage", {
+						'token': OAUTH_BOT_TOKEN,
+						'channel': i['id'],
+						'text': text,
+					})
+	if True:
 		status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
 		if bodylist["ok"]:
 			member = [i for i in bodylist["members"] if not (i["is_bot"] or i["id"] == "USLACKBOT")]
@@ -85,14 +83,13 @@ def presence(request):
 				i["presence"] = [False] * (1440 / 5)
 		presence = unit(area="presence", smalljson=member)
 		presence.put()
-	# 勤怠追加
-	for i in presence.smalljson:
-		status, bodypres = http.get("https://slack.com/api/users.getPresence", {'token': OAUTH_BOT_TOKEN, "user": i["id"]}, datatype="json")
-		i["presence"][len(i["presence"]) * (datetime.now() - datetimecast(presence.born)).seconds / 86400] = (bodypres["presence"] == "active")
-	# 保存
-	presence.put()
-	return jsonres(presence.smalljson)
-
+def presence_test(request):
+	presence = unit.query(unit.area == "presence").order(-unit.born).get()
+	if presence:
+		for i in presence.smalljson:
+			status, bodypres = http.get("https://slack.com/api/users.getPresence", {'token': OAUTH_BOT_TOKEN, "user": i["id"]}, datatype="json")
+			i["presence"][len(i["presence"]) * (datetime.now() - presence.born).seconds / 86400] = (bodypres["presence"] == "active")
+		presence.put()
 
 def oauthsend(request):
 	return passres(urlformat("https://slack.com/oauth/authorize?{params}", None, {
@@ -100,7 +97,6 @@ def oauthsend(request):
 		"scope": "chat:write:bot users:read",
 		"redirect_uri": urlformat("{host}/oauthrecv", request, None)
 	}))
-
 
 def oauthrecv(request):
 	args = requestargs(request)
@@ -114,5 +110,11 @@ def oauthrecv(request):
 			unit(area="workspace", smalljson=body).put()
 
 
-app = wsgiapp([("/oauthsend", oauthsend), ('/slack', helloslack), ('/presence', presence), ('/', hello)])
+app = wsgiapp([
+	("/oauthsend", oauthsend),
+	('/slack', helloslack),
+	('/presence_test', presence_test),
+	('/presence_aday', presence_aday),
+	('/', hello)
+])
 # http://localhost:8080/products/1, Your requested Product %1,
