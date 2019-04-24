@@ -48,7 +48,7 @@ def presence_adaypost(request):
 			for i, originalpresence in enumerate(member["presence"]):
 				windowhalflen=len(member["presence"])*LPFLENMIN/1440/2
 				windowlist=[]
-				windowlist.extend(member["presence"][0:max(0,i-windowhalflen)])
+				windowlist.extend(member["presence"][max(0,i-windowhalflen):i])
 				windowlist.extend(member["presence"][i:i+1])
 				windowlist.extend(member["presence"][i+1:i+1+windowhalflen])
 				member["modifiedpresence"][i]=(float(sum(windowlist))/len(windowlist)>=0.5)
@@ -60,7 +60,7 @@ def presence_adaypost(request):
 					member["presencetimetext"] += " {0}-".format(timetext)
 				if beforepresence and not modifiedpresence:
 					member["presencetimetext"] += "{0}".format(timetext)
-			member["presencetext"]="{0} :{1}".format(member["name"],member["presencetimetext"]) if member["presencetimetext"] else str()
+			member["presencetext"]="\n{0} :{1}".format(member["name"],member["presencetimetext"]) if member["presencetimetext"] else str()
 		status, bodylist = http.get("https://slack.com/api/channels.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
 		if bodylist["ok"]:
 			for i in bodylist["channels"]:
@@ -68,9 +68,9 @@ def presence_adaypost(request):
 					http.post("https://slack.com/api/chat.postMessage", {
 						'token': OAUTH_BOT_TOKEN,
 						'channel': i['id'],
-						'text': "\n".join(i["presencetext"] for i in presence.smalljson),
+						'text': "".join(i["presencetext"] for i in presence.smalljson),
 					})
-	return jsonres(presence.smalljson)
+	return jsonres(presence.smalljson,html=True,indent=4)
 def presence_adaymake(request):
 	status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
 	if bodylist["ok"]:

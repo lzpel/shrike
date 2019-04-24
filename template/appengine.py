@@ -18,8 +18,14 @@ def textres(content,**kwargs):
 def tempres(temp,params,**kwargs):
     tmp = os.path.join(os.path.dirname(__file__), "../" + temp)
     return textres(template.render(tmp, params),**kwargs)
-def jsonres(content):
-    return webapp2.Response(json.dumps(content))
+def jsonres(content,**kwargs):
+    kw={}
+    if kwargs.get("indent",0):
+        kw["indent"]=kwargs["indent"]
+    content=json.dumps(content, **kw)
+    if kwargs.get("html",0):
+        content="\n".join("<p>{0}</p>".format(i) for i in content.split("\n"))
+    return webapp2.Response(content)
 def passres(uri):
     return webapp2.redirect(uri)
 def requestjson(request):
