@@ -45,7 +45,7 @@ def presence_adaypost(request):
 		presencetext = []
 		for member in presence.smalljson:
 			member["modifiedpresence"]=list(member["presence"])
-			for i, presence in enumerate(member["presence"]):
+			for i, originalpresence in enumerate(member["presence"]):
 				windowhalflen=len(member["presence"])*LPFLENMIN/1440/2
 				windowlist=[]
 				windowlist.extend(member["presence"][0:max(0,i-windowhalflen)])
