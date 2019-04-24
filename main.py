@@ -38,7 +38,7 @@ def helloslack(request, *args, **kwargs):
 def hello(request):
 	return jsonres([i.smalljson for i in unit.query().order(-unit.born).fetch()])
 
-def presence_aday(request):
+def presence_adaypost(request):
 	LPFLENMIN=60
 	presence = unit.query(unit.area == "presence").order(-unit.born).get()
 	if presence and False:
@@ -70,14 +70,14 @@ def presence_aday(request):
 						'channel': i['id'],
 						'text': presencetext,
 					})
-	if True:
-		status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
-		if bodylist["ok"]:
-			member = [i for i in bodylist["members"] if not (i["is_bot"] or i["id"] == "USLACKBOT")]
-			for i in member:
-				i["presence"] = [False] * (1440 / 5)
-		presence = unit(area="presence", smalljson=member)
-		presence.put()
+def presence_adaymake(request):
+	status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
+	if bodylist["ok"]:
+		member = [i for i in bodylist["members"] if not (i["is_bot"] or i["id"] == "USLACKBOT")]
+		for i in member:
+			i["presence"] = [False] * (1440 / 5)
+	presence = unit(area="presence", smalljson=member)
+	presence.put()
 def presence_test(request):
 	presence = unit.query(unit.area == "presence").order(-unit.born).get()
 	if presence:
@@ -109,7 +109,8 @@ app = wsgiapp([
 	("/oauthsend", oauthsend),
 	('/slack', helloslack),
 	('/presence_test', presence_test),
-	('/presence_aday', presence_aday),
+	('/presence_adaymake', presence_adaymake),
+	('/presence_adaypost', presence_adaypost),
 	('/', hello)
 ])
 # http://localhost:8080/products/1, Your requested Product %1,
