@@ -42,25 +42,25 @@ def presence_adaypost(request):
 	LPFLENMIN=60
 	presence = unit.query(unit.area == "presence").order(-unit.born).get()
 	if presence:
-		presencetext = str()
-		for n in presence.smalljson:
-			presencelist=n["presence"]
-			presencelistmodified=[False]*len(presencelist)
-			for i, n in enumerate(presencelist):
-				windowhalflen=len(presencelist)*LPFLENMIN/1440/2
+		presencetext = []
+		for member in presence.smalljson:
+			member["modifiedpresence"]=list(member["presence"])
+			for i, presence in enumerate(member["presence"]):
+				windowhalflen=len(member["presence"])*LPFLENMIN/1440/2
 				windowlist=[]
-				windowlist.extend(presencelist[0:max(0,i-windowhalflen)])
-				windowlist.extend([n])
-				windowlist.extend(presencelist[i+1:i+1+windowhalflen])
-				presencelistmodified[i]=(float(sum(windowlist))/len(windowlist)>=0.5)
-			presencetext += "\n{0} :".format(n["name"])
-			for i, n in enumerate(presencelist):
-				beforepresence=presencelistmodified[i-1] if n>0 else False
-				timetext="{0:0>2}:{1:0>2}".format(24 * i / len(presencelist), (1440 * i / len(presencelist)) % 60)
-				if n and not beforepresence:
-					presencetext += " {0}-".format(timetext)
-				if beforepresence and not n:
-					presencetext += "{1}".format(timetext)
+				windowlist.extend(member["presence"][0:max(0,i-windowhalflen)])
+				windowlist.extend(member["presence"][i:i+1])
+				windowlist.extend(member["presence"][i+1:i+1+windowhalflen])
+				member["modifiedpresence"][i]=(float(sum(windowlist))/len(windowlist)>=0.5)
+			member["presencetimetext"]=str()
+			for i, modifiedpresence in enumerate(member["modifiedpresence"]):
+				beforepresence=False if i==0 else member["modifiedpresence"][i-1]
+				timetext="{0:0>2}:{1:0>2}".format(24 * i / len(member["presence"]), (1440 * i / len(member["presence"])) % 60)
+				if modifiedpresence and not beforepresence:
+					member["presencetimetext"] += " {0}-".format(timetext)
+				if beforepresence and not modifiedpresence:
+					member["presencetimetext"] += "{0}".format(timetext)
+			member["presencetext"]="{0} :{1}".format(member["name"],member["presencetimetext"]) if member["presencetimetext"] else str()
 		status, bodylist = http.get("https://slack.com/api/channels.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
 		if bodylist["ok"]:
 			for i in bodylist["channels"]:
@@ -68,7 +68,7 @@ def presence_adaypost(request):
 					http.post("https://slack.com/api/chat.postMessage", {
 						'token': OAUTH_BOT_TOKEN,
 						'channel': i['id'],
-						'text': presencetext,
+						'text': "\n".join(i["presencetext"] for i in presence.smalljson),
 					})
 def presence_adaymake(request):
 	status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
