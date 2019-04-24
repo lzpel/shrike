@@ -41,7 +41,7 @@ def hello(request):
 def presence_adaypost(request):
 	LPFLENMIN=60
 	presence = unit.query(unit.area == "presence").order(-unit.born).get()
-	if presence and False:
+	if presence:
 		presencetext = str()
 		for n in presence.smalljson:
 			presencelist=n["presence"]
