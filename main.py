@@ -39,34 +39,35 @@ def hello(request):
 	return jsonres([i.smalljson for i in unit.query().order(-unit.born).fetch()])
 def presence_roundoff(plist, windowhalfmin):
 	windowhalflen = len(plist) * windowhalfmin / 1440
-	plistA = [bool(i) for i in plist]
+	plistA = ([False] * windowhalflen)+[bool(i) for i in plist]+([False] * windowhalflen)
 	while True:
 		print(str().join(str(int(i)) for i in plistA))
 		plistB = list(plistA)
-		for i, n in enumerate(plistA):
-			windowlist = []
-			windowlist.extend(plistA[max(0, i - windowhalflen):i])
-			windowlist.extend(plistA[i:i + 1])
-			windowlist.extend(plistA[i + 1:i + 1 + windowhalflen])
-			plistB[i] = bool(float(sum(windowlist)) / len(windowlist) >= 0.5)
+		for i, n in enumerate(plist):
+			windowlist = plistA[i:i + windowhalflen]+plistA[i + windowhalflen:i + windowhalflen + 1]+plistA[i + windowhalflen + 1:i + windowhalflen + 1 + windowhalflen]
+			plistB[i+windowhalflen] = bool(float(sum(windowlist)) / len(windowlist) >= 0.5)
 		if plistA == plistB:
-			return plistB
+			return plistB[windowhalflen:len(plistB)-windowhalflen]
 		else:
 			plistA = plistB
+
+
 def presence_timetext(plist):
-	output=str()
-	for i, p in enumerate(plist):
+	output = str()
+	plist2=[False]+plist+[False]
+	for i in range(len(plist)+1):
 		timetext = "{0:0>2}:{1:0>2}".format(24 * i / len(plist), (1440 * i / len(plist)) % 60)
-		if p and not (False if i==0 else plist[i-1]):
+		if not plist2[i] and plist2[i+1]:
 			output += " {0}-".format(timetext)
-		if p and not (False if i==len(plist)-1 else plist[i+1]):
+		if plist2[i] and not plist2[i+1]:
 			output += "{0}".format(timetext)
 	print(output)
 	return output
 
-def presence_adaypost(request):
+def presence_adaypost(request,*args,**kwargs):
 	LPFLENMIN=60
-	presence = unit.query(unit.area == "presence").order(-unit.born).get()
+	kwargs.update(requestargs(request))
+	presence = unit.query(unit.area == "presence").order(-unit.born).get(offset=int(kwargs.get("offset",0)))
 	if presence:
 		for member in presence.smalljson:
 			a=member["modifiedpresence"]=presence_roundoff(member["presence"],LPFLENMIN)
