@@ -1,4 +1,4 @@
-#shrike
+# shrike
 Slackのログイン時間を毎日報告するSlackBot。勤務時間の記録を残すことが目的。
 ## Description
 ```
