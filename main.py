@@ -1,6 +1,7 @@
 # -encoding:utf-8
 from template.appengine import *
 from template.unit import *
+<<<<<<< HEAD
 from datetime import datetime, timedelta
 
 CLIENT_ID = "342204927924.592004947603"
@@ -126,3 +127,18 @@ app = wsgiapp([
 	('/', hello)
 ])
 # http://localhost:8080/products/1, Your requested Product %1,
+=======
+from datetime import datetime
+def hello(request):
+	return tempres("index.html", {
+		"title":"令和最初のウェブサービス",
+		"messagelist":unit.query().order(+unit.born).fetch()
+	})
+def post(request):
+	args=requestargs(request)
+	if args["type"]=="message.post":
+		unit(name=args["name"],text=args["text"]).put()
+	return passres("/")
+
+app = wsgiapp([('/', hello),('/post', post)])
+>>>>>>> b0c2b9b09284e86ca037c9f05c408f829e117f0a
