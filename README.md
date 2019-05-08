@@ -109,6 +109,36 @@ plist:
 return:
 勤務状況のlistに対応するstr
 ```
+def presence_adaypost(request,*args,**kwargs):
+``` 
+"/presence_adaypost"へのリクエストに対するレスポンスを返す
+SlackのAPIでチャンネルに投稿する
+その日の終わり23:59にリクエストされることを想定している
+```
+def presence_adaymake(request):
+```
+"/presence_adaymake"へのリクエストに対するレスポンスを返す
+データベースに当日のログイン状況を記録するためのモデルを作成する
+その日の始まり0:00にリクエストされることを想定している
+```
+def presence_test(request):
+```
+"/presence_text"へのリクエストに対応するレスポンスを返す
+データベース上の最新のモデルを取得し
+モデル内のログイン状況を表すlistを参照し
+listの現在時刻に対応する値を現在のログイン状況に変更し
+データベースに上書き保存する
+```
+def oauthsend(request):
+``` 
+Slackアプリの配布のための関数
+TNT内部でしか使わないので使用しない
+```
+def oauthrecv(request):
+``` 
+Slackアプリの配布のための関数
+TNT内部でしか使わないので使用しない
+```
 ## Requirement
 ```
 Python2.7
