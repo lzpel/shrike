@@ -14,9 +14,9 @@ indexes:
   properties:
   - name: area
   - name: born
-    direction: desc
 
 - kind: unit
   properties:
   - name: area
   - name: born
+    direction: desc

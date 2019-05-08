@@ -16,7 +16,6 @@ def textres(content,**kwargs):
 def tempres(temp,params,**kwargs):
     tmp = os.path.join(os.path.dirname(__file__), "../" + temp)
     return textres(template.render(tmp, params),**kwargs)
-<<<<<<< HEAD
 def jsonres(content,**kwargs):
     kw={}
     if kwargs.get("indent",0):
@@ -41,21 +40,6 @@ def urlformat(formatstring,request,params):
     if request:
         kwargs.update({"host":request.host_url,"path": request.path,"query":request.query_string})
     return formatstring.format(**kwargs)
-=======
-def jsonres(content):
-    return webapp2.Response(json.dumps(content))
-def passres(url):
-    return webapp2.redirect(url)
-def requestjson(request):
-    return json.loads(request.body)
-def requestargs(request):
-    r={}
-    r.update(request.GET)
-    r.update(request.POST)
-    return r
-def urlformat(request,formatstring,**kwargs):
-    return formatstring.format(host=request.host_url,path=request.path,query=request.query_string,**kwargs)
->>>>>>> b0c2b9b09284e86ca037c9f05c408f829e117f0a
 
 class BlobHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, photo_key):
