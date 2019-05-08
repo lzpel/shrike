@@ -27,5 +27,5 @@ def presence_timetext(plist):
 
 import random
 a=[random.randint(0,1) for i in range(144)]
-a=[0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,0]
+a=[0,0,0,1,1,1]
 presence_timetext(presence_roundoff(a, 60))
