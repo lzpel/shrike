@@ -10,14 +10,14 @@ dakyo: 0:00-24:00
 ```
 ## Files
 
-- static
+- static/*
 ```
 app.yamlから参照される
 URLからアクセスされる静的ファイルを格納するディレクトリ
 botのアイコン画像が入っている
-app.yaml内でhttps://HOSTNAME/\w.pngは/static/icon.pngと対応するように宣言されている。
+app.yaml内でhttps://HOSTNAME/icon.pngは/static/icon.pngと対応するように宣言されている。
 ```
-- template
+- template/*
 ```
 GoogleAppEngineの基本的な機能の自作ライブラリを格納するディレクトリ
 /template/http.pyはリクエストを飛ばすライブラリ。例:http.get("http://google.com")
@@ -145,11 +145,13 @@ Python2.7
 Google Cloud SDK 245.0.0
 ```
 ## Usage
-1. slackのワークスペースでアプリを作成
+1. slackのワークスペースでアプリを作成、詳細は後述
 2. main.pyのOAUTH_BOT_TOKENをアプリのボット用トークンに変更
 3. アップロード >gcloud app deploy
 4. slackのワークスペースでアプリユーザーを任意のチャンネルに追加
 5. 毎日そのチャンネルにログイン状況が書き込まれます
+
+
 
 ## Licence
 

@@ -1,12 +1,8 @@
 # -encoding:utf-8
 from template.appengine import *
 from template.unit import *
-
 from datetime import datetime, timedelta
-
-CLIENT_ID = "342204927924.592004947603"
-CLIENT_SECRET = "fd05589134031d6b61048a445041ac13"
-OAUTH_BOT_TOKEN = "xoxb-19423426689-612454598432-5FKIs2IVpXqz6fDArb0EewKY"
+import conf
 
 
 def helloslack(request, *args, **kwargs):
@@ -73,13 +69,13 @@ def presence_adaypost(request,*args,**kwargs):
 			for i in bodylist["channels"]:
 				if i["is_member"]:
 					http.post("https://slack.com/api/chat.postMessage", {
-						'token': OAUTH_BOT_TOKEN,
+						'token': conf.OAUTH_BOT_TOKEN,
 						'channel': i['id'],
 						'text': "".join(i["presencetext"] for i in presence.smalljson),
 					})
 	return jsonres(presence.smalljson,html=True,indent=4)
 def presence_adaymake(request):
-	status, bodylist = http.get("https://slack.com/api/users.list", {'token': OAUTH_BOT_TOKEN}, datatype="json")
+	status, bodylist = http.get("https://slack.com/api/users.list", {'token': conf.OAUTH_BOT_TOKEN}, datatype="json")
 	if bodylist["ok"]:
 		member = [i for i in bodylist["members"] if not (i["is_bot"] or i["id"] == "USLACKBOT")]
 		for i in member:
