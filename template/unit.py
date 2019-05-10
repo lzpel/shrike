@@ -1,7 +1,6 @@
 # coding=utf-8
 from google.appengine.ext import blobstore, ndb
 
-
 class unit(ndb.Model):
 	# 分類
 	born = ndb.DateTimeProperty(auto_now_add=True)
@@ -39,25 +38,8 @@ class unit(ndb.Model):
 		return s.to_dict()
 
 	@classmethod
-	def get_by_short(cls, str, keys_only=False):
-		if not str:
-			return None
-		try:
-			if hasattr(str, "__iter__"):
-				key = [ndb.Key(cls, util.intchars(i)) for i in str]
-				return key if keys_only else ndb.get_multi(key)
-			else:
-				key = ndb.Key(cls, util.intchars(str))
-				return key if keys_only else key.get()
-		except:
-			pass
-
-	@classmethod
-	def short(cls, some):
-		if isinstance(some, ndb.Model):
-			some = some.key
-		if isinstance(some, ndb.Key):
-			return util.intchars(int(some.id()))
+	def key_by_id(cls, id):
+		return ndb.Key(cls,int(id))
 
 	@classmethod
 	def delete_multi(cls, keys):

@@ -9,21 +9,6 @@ smith: 18:00-19:00 19:30-22:00
 dakyo: 0:00-24:00
 ```
 ## Files
-
-- static/*
-```
-app.yamlから参照される
-URLからアクセスされる静的ファイルを格納するディレクトリ
-botのアイコン画像が入っている
-app.yaml内でhttps://HOSTNAME/icon.pngは/static/icon.pngと対応するように宣言されている。
-```
-- template/*
-```
-GoogleAppEngineの基本的な機能の自作ライブラリを格納するディレクトリ
-/template/http.pyはリクエストを飛ばすライブラリ。例:http.get("http://google.com")
-/template/unit.pyはデータベースの読み書きのライブラリ。例:unit(name="anonymous",desc="a person").put()
-/template/appengine.pyはAppEngineの起動、リクエストの受信、レスポンスの作成を簡略化するライブラリ
-```
 - app.yaml
 ```
 AppEngineから参照されるファイル
@@ -68,17 +53,24 @@ app.yamlから参照
 作者から手動で参照されるスクリプト
 ちょっとした機能を試すための砂場
 ```
-## main.py の最上位関数
-- def helloslack(request, *args, **kwargs):
+##Directories
+- static/*
 ```
-使用しない
+app.yamlから参照される
+URLからアクセスされる静的ファイルを格納するディレクトリ
+botのアイコン画像が入っている
+app.yaml内でhttps://HOSTNAME/icon.pngは/static/icon.pngと対応するように宣言されている。
 ```
-- def hello(request)
+- template/*
 ```
-"/"へのリクエストに対するレスポンスを返す
-データベースの内容を全部吐き出す
-デバッグ用
+GoogleAppEngineの基本的な機能の自作ライブラリを格納するディレクトリ
+/template/http.pyはリクエストを飛ばすライブラリ。例:http.get("http://google.com")
+/template/unit.pyはデータベースの読み書きのライブラリ。例:unit(name="anonymous",desc="a person").put()
+/template/appengine.pyはAppEngineの起動、リクエストの受信、レスポンスの作成を簡略化するライブラリ
 ```
+## main.py のメソッド
+main.pyのメソッドはリクエストハンドラかリクエストハンドラから呼び出される内部使用メソッドの2種類に分けられる。
+### main.py の内部使用メソッド
 - def presence_roundoff(plist, windowhalfmin):
 ```
 勤務状況の揺らぎを補正する。
@@ -109,7 +101,18 @@ plist:
 return:
 勤務状況のlistに対応するstr
 ```
-def presence_adaypost(request,*args,**kwargs):
+###main.pyのリクエストハンドラ
+- def slackevent(request):
+```
+使用しない
+```
+- def hello(request)
+```
+"/"へのリクエストに対するレスポンスを返す
+データベースの内容を全部吐き出す
+デバッグ用
+```
+def presence_adaypost(request):
 ``` 
 "/presence_adaypost"へのリクエストに対するレスポンスを返す
 SlackのAPIでチャンネルに投稿する

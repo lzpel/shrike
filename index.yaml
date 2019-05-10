@@ -20,3 +20,9 @@ indexes:
   - name: area
   - name: born
     direction: desc
+
+- kind: unit
+  properties:
+  - name: iden
+  - name: last
+    direction: desc

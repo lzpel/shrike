@@ -1,6 +1,6 @@
 import webapp2,json,os
 from google.appengine.ext.webapp import template, blobstore_handlers, RequestHandler
-from google.appengine.api import urlfetch, app_identity, mail, memcache
+from google.appengine.api import urlfetch, app_identity, mail, memcache,taskqueue
 
 def httpfunc(method,url,header,data):
     method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method]
@@ -40,6 +40,9 @@ def urlformat(formatstring,request,params):
     if request:
         kwargs.update({"host":request.host_url,"path": request.path,"query":request.query_string})
     return formatstring.format(**kwargs)
+
+def addtask(path,params):
+    taskqueue.add(queue_name="default",url=path,params=params)
 
 class BlobHandler(blobstore_handlers.BlobstoreDownloadHandler):
     def get(self, photo_key):

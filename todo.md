@@ -3,10 +3,19 @@
 要求仕様：設定機能、configuration.py、トークン、幅、BOT、slack
 DMで自分の分だけ日付付きで教えてくれる
 どういう会話ができるかヘルプ機能
+```
+```
+個人的にoauthやりたい
+citygirlstat00に追加する
+一般配布
+cron.yaml->push queue->test,adaymake,adaypost
+https://cloud.google.com/appengine/docs/standard/python/taskqueue/push/creating-handlers
+get_or_insertって便利そう。設定など
 
-main.py 最上位関数をさらに２分割
-RESTに対応するか(args,kwargs)
-内部使用か
-順番も工夫するapp.yamlを最初に持ってくるべき
-dexirekutori
+地球工基礎数理を要注意科目に指定
+```
+```
+TODOLIST
+oauthに対応
+tokenは一つしか持ちたくない
 ```
