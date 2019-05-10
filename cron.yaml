@@ -1,12 +1,12 @@
 ﻿cron:
 - description: "presence test"
-  url: /presence_test
+  url: /team/presence_test
   schedule: every 5 minutes synchronized
 - description: "presence_adaymake"
-  url: /presence_adaymake
+  url: /team/presence_adaymake
   schedule: every day 00:00
   timezone: Japan
 - description: "presence_adaypost"
-  url: /presence_adaypost
+  url: /team/presence_adaypost
   schedule: every day 23:59
   timezone: Japan

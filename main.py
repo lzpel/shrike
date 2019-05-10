@@ -3,6 +3,7 @@ from template.appengine import *
 from template.unit import *
 from datetime import datetime, timedelta
 import template.http as http
+import re
 http.httpfunc=httpfunc
 def presence_roundoff(plist, windowhalfmin):
 	windowhalflen = len(plist) * windowhalfmin / 1440
@@ -71,23 +72,31 @@ def oauth(request,path):
 	CLIENT_ID = "19423426689.606115194753"
 	CLIENT_SECRET = "69039563927271fad56a9eeffe8947b7"
 	args=requestargs(request)
-	if not path:
-		return passres(urlformat("https://slack.com/oauth/authorize?{params}", None, {"client_id": CLIENT_ID,"scope": "bot commands","redirect_uri": urlformat("{host}/oauth/recv", request, None)}))
-	else:
+	if path=="oauth":
+		params={"client_id": CLIENT_ID,"scope": "bot commands","redirect_uri": urlformat("{host}/oauthrecv", request, None)}
+		return passres(urlformat("https://slack.com/oauth/authorize?{params}", None, params))
+	if path=="oauthrecv":
 		code, body = http.post("https://slack.com/api/oauth.access", {"client_id": CLIENT_ID,"client_secret": CLIENT_SECRET,"code": args.get("code","")}, datatype="json")
-		if body.get("ok", 0):
+		if body["ok"]:
 			model=unit.query(unit.iden==body["team_id"]).order(-unit.last).get() or unit()
 			model.populate(area="team", iden=body["team_id"], smalljson=body)
 			model.put()
-		return jsonres(body)
+			return jsonres(body)
+		else:
+			return jsonres(body) #for debug
 def slash(request):
 	args = requestargs(request)
-	return jsonres({
-		"text":"hello"
-	})
+	text = args["text"]
+	m=re.match("^(\d+)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)(\s+<@(\w+)\|\w+>)?$","text")
+	if m:
+		m=m.groups()
+		day1=datetime(int(m[0]),int(m[1]),int(m[2]))
+		day2=datetime(int(m[3]),int(m[4]),int(m[5]))
+		user=m[7]
+	return textres(">sample\n`/shrike 2019-4-15 2019-5-15`\n`/shrike 2019-4-15 2019-5-15 @smith`")
 app = wsgiapp([
 	('/team(/.+)', team),
-	("/oauth(/recv)?", oauth),
+	("/(oauth|oauthrecv)", oauth),
 	("/slash", slash),
 	('/presence_test', presence_test),
 	('/presence_adaymake', presence_adaymake),

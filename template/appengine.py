@@ -1,4 +1,4 @@
-import webapp2,json,os
+import webapp2,json,os,urllib
 from google.appengine.ext.webapp import template, blobstore_handlers, RequestHandler
 from google.appengine.api import urlfetch, app_identity, mail, memcache,taskqueue
 
@@ -21,9 +21,7 @@ def jsonres(content,**kwargs):
     if kwargs.get("indent",0):
         kw["indent"]=kwargs["indent"]
     content=json.dumps(content, **kw)
-    if kwargs.get("html",0):
-        content="\n".join("<p>{0}</p>".format(i) for i in content.split("\n"))
-    return webapp2.Response(content)
+    return webapp2.Response(content,content_type="application/json")
 def passres(uri):
     return webapp2.redirect(uri)
 def requestjson(request):
@@ -36,7 +34,7 @@ def requestargs(request):
 def urlformat(formatstring,request,params):
     kwargs={}
     if params:
-        kwargs.update({"params":"&".join("{0}={1}".format(k,v) for k,v in (params or {}).items())})
+        kwargs.update({"params":urllib.urlencode(params)})
     if request:
         kwargs.update({"host":request.host_url,"path": request.path,"query":request.query_string})
     return formatstring.format(**kwargs)
