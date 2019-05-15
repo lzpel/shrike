@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time, random, platform, hmac, hashlib, base64, json, traceback, datetime,itertools
+import time, random, platform, hmac, hashlib, base64, json, traceback, datetime,itertools,functools
 
 if int(platform.python_version_tuple()[0]) == 2:
 	from urllib2 import urlopen, Request, HTTPError,URLError
@@ -18,9 +18,8 @@ getstr = lambda d, k: d.get(k, None) or ""
 tobyte=lambda x:(isinstance(x,words) and x.encode("utf-8")) or (isinstance(x,bytes) and x) or bytes(x)
 totext=lambda x:(isinstance(x,bytes) and x.decode("utf-8")) or (isinstance(x,words) and x) or words(x)
 
-def avoid_exception(sleepseconds=5,retry=0):
+def exceptionpass(sleepseconds=5,retry=0):
 	def inner(func):
-		import functools
 		@functools.wraps(func)
 		def wrapper(*args, **kwargs):
 			for i in (retry>0 and range(retry)) or itertools.count():
@@ -108,9 +107,6 @@ def request(method, url, param,**kwargs):
 	return code,body
 
 if __name__ == '__main__':
+	print(unixtime())
 	print(datauri(datauri("%abc%")))
-	try:
-		r=get("http://info.cern.ch/hypertext/WWW/TheProject.html", None)
-		print r
-	except HTTPError as e:
-		pass
+	print(get("http://info.cern.ch/hypertext/WWW/TheProject.html", None))

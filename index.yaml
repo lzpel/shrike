@@ -26,3 +26,9 @@ indexes:
   - name: iden
   - name: last
     direction: desc
+
+- kind: unit
+  properties:
+  - name: kusr
+  - name: born
+    direction: desc

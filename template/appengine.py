@@ -2,9 +2,8 @@ import webapp2,json,os,urllib
 from google.appengine.ext.webapp import template, blobstore_handlers, RequestHandler
 from google.appengine.api import urlfetch, app_identity, mail, memcache,taskqueue
 
-def httpfunc(method,url,header,data):
-    method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method]
-    r=urlfetch.fetch(url=url, payload=data, method=method, headers=header)
+def httpfunc_appengine(method,url,header,data):
+    r=urlfetch.fetch(url=url, payload=data, method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method], headers=header)
     return (r.status_code, r.content)
 def wsgiapp(accesstable):
     return webapp2.WSGIApplication(accesstable)

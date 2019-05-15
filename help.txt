@@ -1,0 +1,10 @@
+>show your attendance between 2019-4-15 and 2019-5-15.
+`/shrike 2019-4-15 2019-5-15`
+>get someone's attendance between 2019-4-15 and 2019-5-15.
+`/shrike 2019-4-15 2019-5-15 @smith`
+>show configuration
+`/shrike config`
+>restore default configulation
+`/shrike config restore`
+>set configulation
+`/shrike config roundmin`

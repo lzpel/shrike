@@ -2,9 +2,9 @@
 from template.appengine import *
 from template.unit import *
 from datetime import datetime, timedelta
-import template.http as http
+import template.httpfunc as http
 import re
-http.httpfunc=httpfunc
+http.httpfunc=httpfunc_appengine
 def presence_roundoff(plist, windowhalfmin):
 	windowhalflen = len(plist) * windowhalfmin / 1440
 	plistA = ([False] * windowhalflen)+[bool(i) for i in plist]+([False] * windowhalflen)
@@ -28,23 +28,24 @@ def presence_timetext(plist):
 			output += " {0}-".format(timetext)
 		if plist2[i] and not plist2[i+1]:
 			output += "{0}".format(timetext)
-	print(output)
 	return output
-
 def hello(request):
 	return tempres("index.html",{"json":[i.smalljson for i in unit.query().order(-unit.born).fetch()],})
 def presence_adaypost(request,*args,**kwargs):
-	LPFLENMIN=60
 	presence = unit.query(unit.area == "presence").order(-unit.born).get(offset=int(requestargs(request).get("offset",0)))
 	if presence:
 		for member in presence.smalljson:
-			a=member["modifiedpresence"]=presence_roundoff(member["presence"],LPFLENMIN)
-			member["presencetext"]="\n{0} :{1}".format(member["name"],presence_timetext(a)) if any(a) else str()
-		status, bodylist = http.get("https://slack.com/api/channels.list", {'token': requestargs(request)["bot"]["bot_access_token"]}, datatype="json")
+			member["presencetext"]=presence_timetext(presence_roundoff(member["presence"],60))
+		status, bodylist = http.get("https://slack.com/api/channels.list", {'token': requestargs(request)["bot_access_token"]}, datatype="json")
 		if bodylist["ok"]:
 			for i in bodylist["channels"]:
 				if i["is_member"]:
-					http.post("https://slack.com/api/chat.postMessage", {'token': requestargs(request)["bot_access_token"],'channel': i['id'],'text': "".join(i["presencetext"] for i in presence.smalljson),})
+					http.post("https://slack.com/api/chat.postMessage", {
+						"username":"shrike@アクティブ時間帯報告bot",
+						'token': requestargs(request)["bot_access_token"],
+						'channel': i['id'],
+						'text': "\n".join("{0}\t:{1}".format(i["name"],i["presencetext"]) for i in presence.smalljson if i["presencetext"]),
+					})
 	return jsonres(presence.smalljson,html=True,indent=4)
 def presence_adaymake(request):
 	status, bodylist = http.get("https://slack.com/api/users.list", {'token': requestargs(request)["bot_access_token"]}, datatype="json")
@@ -63,9 +64,9 @@ def presence_test(request):
 		presence.put()
 def team(request,path):
 	for t in unit.query(unit.area=="team").iter():
-		t.smalljson["id"]=t.key.id()
-		t.smalljson.update(t.smalljson["bot"])
-		addtask(path,t.smalljson)
+		data={"id":t.key.id()}
+		data.update(t.smalljson["bot"])
+		addtask(path,data)
 	return textres(path)
 
 def oauth(request,path):
@@ -85,15 +86,21 @@ def oauth(request,path):
 		else:
 			return jsonres(body) #for debug
 def slash(request):
+	lag=timedelta(hours=9)
 	args = requestargs(request)
-	text = args["text"]
-	m=re.match("^(\d+)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)(\s+<@(\w+)\|\w+>)?$","text")
+	team = unit.query(unit.area == "team", unit.iden == args["team_id"]).get()
+	m=re.match("^(\d+)-(\d+)-(\d+)\s+(\d+)-(\d+)-(\d+)(\s+<@(\w+)\|\w+>)?$",args["text"])
 	if m:
 		m=m.groups()
-		day1=datetime(int(m[0]),int(m[1]),int(m[2]))
-		day2=datetime(int(m[3]),int(m[4]),int(m[5]))
-		user=m[7]
-	return textres(">sample\n`/shrike 2019-4-15 2019-5-15`\n`/shrike 2019-4-15 2019-5-15 @smith`")
+		user=m[7] or args["user_id"]
+		day1,day2=datetime(int(m[0]),int(m[1]),int(m[2])),datetime(int(m[3]),int(m[4]),int(m[5]))
+		presence = unit.query(unit.area == "presence", unit.kusr == team.key, unit.born>min(day1,day2)-lag, unit.born<max(day1,day2)-lag).order(-unit.born).fetch()
+		for i in presence:
+			for j in i.smalljson:
+				if j["id"]==user:
+					i.text=presence_timetext(presence_roundoff(j["presence"],60))
+		return textres("\n".join("{0}\t:{1}".format((i.born+lag).strftime('%Y-%m-%d'),i.text or str()) for i in presence))
+	return textres(open("help.txt").read())
 app = wsgiapp([
 	('/team(/.+)', team),
 	("/(oauth|oauthrecv)", oauth),
