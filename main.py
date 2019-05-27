@@ -41,10 +41,10 @@ def presence_adaypost(request,*args,**kwargs):
 			for i in bodylist["channels"]:
 				if i["is_member"]:
 					http.post("https://slack.com/api/chat.postMessage", {
-						"username":"shrike@アクティブ時間帯報告bot",
+						"username":"アクティブ時間帯報告",
 						'token': requestargs(request)["bot_access_token"],
 						'channel': i['id'],
-						'text': "\n".join("{0}\t:{1}".format(i["name"],i["presencetext"]) for i in presence.smalljson if i["presencetext"]),
+						'text': "\n".join("{0} :{1}".format(i["name"],i["presencetext"]) for i in presence.smalljson if i["presencetext"]),
 					})
 	return jsonres(presence.smalljson,html=True,indent=4)
 def presence_adaymake(request):
@@ -99,14 +99,17 @@ def slash(request):
 			for j in i.smalljson:
 				if j["id"]==user:
 					i.text=presence_timetext(presence_roundoff(j["presence"],60))
-		return textres("\n".join("{0}\t:{1}".format((i.born+lag).strftime('%Y-%m-%d'),i.text or str()) for i in presence))
+		return textres("\n".join("{0} :{1}".format((i.born+lag).strftime('%Y-%m-%d'),i.text or str()) for i in presence))
 	return textres(open("help.txt").read())
+def test(request):
+	return jsonres(http.get("http://lzpel1.com"))
 app = wsgiapp([
 	('/team(/.+)', team),
 	("/(oauth|oauthrecv)", oauth),
-	("/slash", slash),
 	('/presence_test', presence_test),
 	('/presence_adaymake', presence_adaymake),
 	('/presence_adaypost', presence_adaypost),
+	("/slash", slash),
+	("/test", test),
 	('/', hello)
 ])

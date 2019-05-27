@@ -3,8 +3,11 @@ from google.appengine.ext.webapp import template, blobstore_handlers, RequestHan
 from google.appengine.api import urlfetch, app_identity, mail, memcache,taskqueue
 
 def httpfunc_appengine(method,url,header,data):
-    r=urlfetch.fetch(url=url, payload=data, method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method], headers=header)
-    return (r.status_code, r.content)
+    try:
+        r=urlfetch.fetch(url=url, payload=data, method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method], headers=header)
+        return (r.status_code, r.content)
+    except urlfetch.DownloadError, e:
+        return e
 def wsgiapp(accesstable):
     return webapp2.WSGIApplication(accesstable)
 def textres(content,**kwargs):

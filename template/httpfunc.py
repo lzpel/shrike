@@ -6,13 +6,11 @@ if int(platform.python_version_tuple()[0]) == 2:
 	from urllib2 import urlopen, Request, HTTPError,URLError
 	from urllib import quote, urlencode
 	from urlparse import parse_qs
-	input = raw_input
 	words=unicode
 else:
 	from urllib.request import urlopen, Request
 	from urllib.parse import quote, urlencode, parse_qs
 	from urllib.error import HTTPError,URLError
-	input = input
 	words=str
 getstr = lambda d, k: d.get(k, None) or ""
 tobyte=lambda x:(isinstance(x,words) and x.encode("utf-8")) or (isinstance(x,bytes) and x) or bytes(x)
@@ -47,8 +45,11 @@ def datauri(data,type="text/plain"):
 def httpfunc(method,url,header,data):
 	req=Request(url=url, data=data, headers=header)
 	req.get_method=lambda:method
-	h = urlopen(req)
-	return h.getcode(), h.read()
+	try:
+		h = urlopen(req)
+		return h.getcode(), h.read()
+	except HTTPError, e:
+		return e.code, e.read()
 
 def get(url,param=None,**kwargs):
 	return request("GET",url,param,**kwargs)
