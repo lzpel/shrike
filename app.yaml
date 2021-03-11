@@ -1,24 +1,7 @@
-﻿runtime: python27
-api_version: 1
-threadsafe: yes
-
+﻿runtime: go112
 handlers:
-
-- url: /(.*\..*)
-  static_files: static/\1
-  upload: static/.*
-
-- url: /.*
-  script: main.app
-
-libraries:
-- name: webapp2
-  version: 2.5.2
-
-skip_files:
-- \.git/
-- \.idea/
-- venv/
-- .*.so$
-- .*.exe$
-- .*.pyc$
+  - url: /(.*\.(gif|png|jpg|js))
+    static_files: \1
+    upload: .*\.(gif|png|jpg|js)
+  - url: /
+    script: auto

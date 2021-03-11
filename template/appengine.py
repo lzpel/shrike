@@ -6,7 +6,7 @@ def httpfunc_appengine(method,url,header,data):
     try:
         r=urlfetch.fetch(url=url, payload=data, method={"POST":urlfetch.POST,"GET":urlfetch.GET}[method], headers=header)
         return (r.status_code, r.content)
-    except urlfetch.DownloadError, e:
+    except urlfetch.DownloadError as e:
         return e
 def wsgiapp(accesstable):
     return webapp2.WSGIApplication(accesstable)
