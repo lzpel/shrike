@@ -1,7 +1,6 @@
 package main
 
 import (
-	"compress/gzip"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -41,18 +40,13 @@ func HandleSample() {
 }
 
 func Credential(credential_json_path string) {
-	if fp, e := os.Open(credential_json_path);e == nil {
-		defer fp.Close()
-		if gz,e := gzip.NewReader(fp);e==nil{
-			if bytes,e :=ioutil.ReadAll(gz);e==nil{
-				var fc map[string]string
-				if e = json.Unmarshal(bytes, &fc); e == nil {
-					for k, v := range fc {
-						os.Setenv(strings.ToUpper(k), v)
-					}
-					os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", credential_json_path)
-				}
+	if bytes, e := ioutil.ReadFile(credential_json_path);e == nil {
+		var fc map[string]string
+		if e = json.Unmarshal(bytes, &fc); e == nil {
+			for k, v := range fc {
+				os.Setenv(strings.ToUpper(k), v)
 			}
+			os.Setenv("GOOGLE_APPLICATION_CREDENTIALS", credential_json_path)
 		}
 	}else{
 		log.Fatalln(e)

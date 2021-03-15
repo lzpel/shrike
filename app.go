@@ -73,7 +73,7 @@ func roundoff(plist []bool, windowhalfmin int) []bool {
 			plistB[i+windowhalflen] = float32(sum)/float32(len(windowList)) >= 0.5
 		}
 		if reflect.DeepEqual(plistA[windowhalflen:windowhalflen+len(plist)], plistB[windowhalflen:windowhalflen+len(plist)]) {
-			return plistB[windowhalflen:windowhalflen:windowhalflen+len(plist)]
+			return plistB[windowhalflen:windowhalflen+len(plist)]
 		} else {
 			copy(plistA, plistB)
 		}
@@ -106,13 +106,15 @@ func post() {
 		if users, e := client.GetUsers(); e == nil {
 			for key, value := range ms[0].GetActive() {
 				for _, u:=range users{
-					flag,value := false,roundoff(value, 60)
-					for _, n:=range value{
+					flag,rounded := false,roundoff(value, 60)
+					for _, n:=range rounded{
 						if n{flag=true}
 					}
 					if u.ID==key && flag{
-						fmt.Fprint(w, u.RealName)
-						timeText(w, value)
+						fmt.Fprint(w, u.Name)
+						fmt.Fprint(w, ":")
+						timeText(w, rounded)
+						fmt.Fprintln(w)
 					}
 				}
 			}
@@ -140,7 +142,7 @@ func check() {
 	if users, e := c.GetUsers(); e == nil {
 		activeMap := ms[0].GetActive()
 		for _, u := range users {
-			if u.IsBot == true{
+			if u.IsBot == true || u.ID=="USLACKBOT"{
 				break
 			}
 			if presence, e := c.GetUserPresence(u.ID); e == nil{
