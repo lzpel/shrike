@@ -7,6 +7,7 @@ import (
 	"os"
 	"time"
 )
+type Key=*datastore.Key
 
 func NewClient() (*datastore.Client, context.Context) {
 	ctx := context.Background()

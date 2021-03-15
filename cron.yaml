@@ -2,7 +2,7 @@
 - description: "check"
   url: /command/check
   schedule: every 5 minutes synchronized
-- description: "dailypost"
-  url: /command/dailypost
+- description: "post"
+  url: /command/post
   schedule: every day 23:59
   timezone: Japan

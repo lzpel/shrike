@@ -1,3 +1,3 @@
 #!/usr/bin/env sh
 
-gcloud app deploy app.yaml cron.yaml index.yaml
+gcloud app deploy app.yaml cron.yaml --project=liquid-galaxy-307705

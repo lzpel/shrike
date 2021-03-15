@@ -20,16 +20,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="ae173872-7d3e-450e-b324-ba79cb9fbca8" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/deployment.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/appserver.go" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/apptable.go" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gcloudignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/app.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.go" beforeDir="false" afterPath="$PROJECT_DIR$/app.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/appserver.go" beforeDir="false" afterPath="$PROJECT_DIR$/appserver.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/apptable.go" beforeDir="false" afterPath="$PROJECT_DIR$/apptable.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cron.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/cron.yaml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/deploy.sh" beforeDir="false" afterPath="$PROJECT_DIR$/deploy.sh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/template/appengine.py" beforeDir="false" afterPath="$PROJECT_DIR$/template/appengine.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/index.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/template/__init__.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/template/appengine.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/template/httpfunc.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/template/unit.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,7 +73,16 @@
       <recent name="C:\Users\smith\PycharmProjects\shrike" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Build.go build shrike/">
+    <configuration name="go build shrike/" type="GoApplicationRunConfiguration" factoryName="Go Application" nameIsGenerated="true">
+      <module name="heiseibbs" />
+      <working_directory value="$PROJECT_DIR$/" />
+      <go_parameters value="-i" />
+      <kind value="DIRECTORY" />
+      <filePath value="$PROJECT_DIR$/" />
+      <directory value="$PROJECT_DIR$/" />
+      <method v="2" />
+    </configuration>
     <configuration name="appengine" type="PythonConfigurationType" factoryName="Python">
       <module name="heiseibbs" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -93,6 +105,9 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Go Build.go build shrike/" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -135,5 +150,48 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="WindowStateProjectService">
+    <state x="96" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1615551233591">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state x="96" y="0" key="#com.intellij.execution.impl.EditConfigurationsDialog/0.0.1280.680@0.0.1280.680" timestamp="1615551233591" />
+    <state width="662" height="438" key="DebuggerActiveHint" timestamp="1615783805249">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="662" height="438" key="DebuggerActiveHint/0.0.1280.680@0.0.1280.680" timestamp="1615783805249" />
+    <state width="1237" height="290" key="GridCell.Tab.0.bottom" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.0.bottom/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.0.center" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.0.center/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.0.left" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.0.left/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.0.right" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.0.right/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.1.bottom" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.1.bottom/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.1.center" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.1.center/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.1.left" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.1.left/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
+    <state width="1237" height="290" key="GridCell.Tab.1.right" timestamp="1615784642337">
+      <screen x="0" y="0" width="1280" height="680" />
+    </state>
+    <state width="1237" height="290" key="GridCell.Tab.1.right/0.0.1280.680@0.0.1280.680" timestamp="1615784642337" />
   </component>
 </project>
