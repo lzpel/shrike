@@ -126,9 +126,7 @@ func post() {
 		}
 		if channels, _, e := client.GetConversationsForUser(&slack.GetConversationsForUserParameters{}); e == nil {
 			for _, channel := range channels {
-				if false {
-					client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false))
-				}
+				client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false))
 			}
 		}
 	}
