@@ -73,7 +73,7 @@ func roundoff(plist []bool, windowhalfmin int) []bool {
 			plistB[i+windowhalflen] = float32(sum)/float32(len(windowList)) >= 0.5
 		}
 		if reflect.DeepEqual(plistA[windowhalflen:windowhalflen+len(plist)], plistB[windowhalflen:windowhalflen+len(plist)]) {
-			return plistB[windowhalflen:windowhalflen+len(plist)]
+			return plistB[windowhalflen : windowhalflen+len(plist)]
 		} else {
 			copy(plistA, plistB)
 		}
@@ -105,23 +105,30 @@ func post() {
 		w := bytes.NewBufferString("")
 		if users, e := client.GetUsers(); e == nil {
 			for key, value := range ms[0].GetActive() {
-				for _, u:=range users{
-					flag,rounded := false,roundoff(value, 60)
-					for _, n:=range rounded{
-						if n{flag=true}
-					}
-					if u.ID==key && flag{
-						fmt.Fprint(w, u.Name)
-						fmt.Fprint(w, ":")
-						timeText(w, rounded)
-						fmt.Fprintln(w)
+				for _, u := range users {
+					if u.ID == key {
+						flag, rounded := false, roundoff(value, 60)
+						for _, n := range rounded {
+							if n {
+								flag = true
+							}
+						}
+						fmt.Println(u.Name, flag)
+						if flag {
+							fmt.Fprint(w, u.Name)
+							fmt.Fprint(w, ":")
+							timeText(w, rounded)
+							fmt.Fprintln(w)
+						}
 					}
 				}
 			}
 		}
 		if channels, _, e := client.GetConversationsForUser(&slack.GetConversationsForUserParameters{}); e == nil {
 			for _, channel := range channels {
-				client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false))
+				if false {
+					client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false))
+				}
 			}
 		}
 	}
@@ -142,20 +149,21 @@ func check() {
 	if users, e := c.GetUsers(); e == nil {
 		activeMap := ms[0].GetActive()
 		for _, u := range users {
-			if u.IsBot == true || u.ID=="USLACKBOT"{
-				break
+			if u.IsBot == true || u.ID == "USLACKBOT" {
+				continue
 			}
-			if presence, e := c.GetUserPresence(u.ID); e == nil{
-				if presence.Presence=="active"{
+			if presence, e := c.GetUserPresence(u.ID); e == nil {
+				if presence.Presence == "active" {
 					if _, ok := activeMap[u.ID]; ok == false {
 						activeMap[u.ID] = make([]bool, 1440/interval)
 					}
 					activeMap[u.ID][(now.Hour()*60+now.Minute())/interval] = true
 				}
-			}else{
+			} else {
 				println(e)
 			}
 		}
+		fmt.Println(activeMap)
 		ms[0].SetActive(activeMap)
 		TablePut(ms[0].Self, &ms[0])
 	} else {
@@ -180,7 +188,7 @@ func main() {
 		command(r.URL.Path)
 	})
 	Handle("/", func(w Response, r Request) {
-		WriteTemplate(w, nil, nil, "index.html")
+		WriteTemplate(w, nil,nil, "index.html")
 	})
 	Credential("default.json")
 	Listen()
