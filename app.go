@@ -5,11 +5,18 @@ import (
 	"fmt"
 	"github.com/slack-go/slack"
 	"io"
+	"net/url"
 	"os"
 	"reflect"
 	"strings"
 	"time"
 )
+
+type Team struct {
+	Self         Key `datastore:"__key__"`
+	Born, Access time.Time
+	Token        string
+}
 
 type Daily struct {
 	Self   Key `datastore:"__key__"`
@@ -97,11 +104,11 @@ func timeText(w io.Writer, plist []bool) {
 		}
 	}
 }
-func post() {
+func post(token string) {
 	ms := []Daily{}
 	res := TableGetAll(NewQuery("DAILY").Order("-Date").Limit(1), &ms)
 	if len(res) > 0 {
-		client := NewSlackClient()
+		client := slack.New(token)
 		w := bytes.NewBufferString("")
 		if users, e := client.GetUsers(); e == nil {
 			for key, value := range ms[0].GetActive() {
@@ -131,9 +138,10 @@ func post() {
 		}
 	}
 }
-func check() {
+func check(token string) {
 	const interval = 5
 	ms, now := []Daily{}, time.Now().In(time.Local)
+	client := slack.New(token)
 	res := TableGetAll(NewQuery("DAILY").Order("-Date").Limit(1), &ms)
 	if len(res) > 0 && TimeAlign(ms[0].Date) == TimeAlign(now) {
 		//nothing
@@ -143,14 +151,14 @@ func check() {
 			Date: now,
 		}}, ms...)
 	}
-	c := NewSlackClient()
-	if users, e := c.GetUsers(); e == nil {
+	if users, e := client.GetUsers(); e == nil {
 		activeMap := ms[0].GetActive()
 		for _, u := range users {
+			ms[0].Team = u.TeamID
 			if u.IsBot == true || u.ID == "USLACKBOT" {
 				continue
 			}
-			if presence, e := c.GetUserPresence(u.ID); e == nil {
+			if presence, e := client.GetUserPresence(u.ID); e == nil {
 				if presence.Presence == "active" {
 					if _, ok := activeMap[u.ID]; ok == false {
 						activeMap[u.ID] = make([]bool, 1440/interval)
@@ -168,26 +176,37 @@ func check() {
 		print(e)
 	}
 }
-func NewSlackClient() *slack.Client {
-	return slack.New("xoxb-19423426689-612454598432-QVlIU73UYj8sVtj2opGeAP7S")
-}
-func command(command string) {
+func command(token, command string) {
 	if strings.Contains(command, "post") {
-		post()
+		post(token)
 	}
 	if strings.Contains(command, "check") {
-		check()
+		check(token)
 	}
 }
 
 func main() {
-	time.Local, _ = time.LoadLocation("Asia/Tokyo")
-	Handle("/command/", func(w Response, r Request) {
-		command(r.URL.Path)
-	})
-	Handle("/", func(w Response, r Request) {
-		WriteTemplate(w, nil,nil, "index.html")
-	})
 	Credential("default.json")
-	Listen()
+	time.Local, _ = time.LoadLocation("Asia/Tokyo")
+	if len(os.Args) == 1 {
+		Handle("/command/", func(w Response, r Request) {
+			command(r.FormValue("token"), r.URL.Path)
+		})
+		Handle("/", func(w Response, r Request) {
+			WriteTemplate(w, nil, nil, "index.html")
+		})
+		Handle("/install", func(w Response, r Request) {
+			client_id := "19423426689.606115194753"
+			scope := "app_mentions:read channels:read chat:write commands incoming-webhook users:read"
+			if strings.Contains(r.URL.Path, "redirect") {
+				fmt.Fprintln(w, r.Form)
+			} else {
+				Redirect(w, r, fmt.Sprintf("https://slack.com/oauth/authorize?client_id=%s&scope=%s&redirect_uri=%s", client_id, scope, url.QueryEscape("https://localhost:8080/install/redirect")))
+			}
+		})
+		Listen()
+	} else {
+		//あまり良い書き方ではない。
+		command("xoxb-19423426689-612454598432-QVlIU73UYj8sVtj2opGeAP7S", os.Args[1])
+	}
 }

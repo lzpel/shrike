@@ -74,8 +74,9 @@ func WriteTemplate(w io.Writer, value interface{}, funcMap map[string]interface{
 	}
 }
 
-func Redirect(w Response, r Request, url string) {
-	http.Redirect(w, r, url, 301)
+func Redirect(w Response, r Request, urlRaw string) {
+	fmt.Println(urlRaw)
+	http.Redirect(w, r, urlRaw, 302)
 }
 
 func GetMultipartFileHeaders(r Request) map[string][]*multipart.FileHeader {
