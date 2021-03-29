@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"github.com/slack-go/slack"
 	"io"
+	"math/rand"
+	"net/http"
 	"net/url"
 	"os"
 	"reflect"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -104,11 +107,11 @@ func timeText(w io.Writer, plist []bool) {
 		}
 	}
 }
-func post(token string) {
+func post(team *Team) {
 	ms := []Daily{}
 	res := TableGetAll(NewQuery("DAILY").Order("-Date").Limit(1), &ms)
 	if len(res) > 0 {
-		client := slack.New(token)
+		client := slack.New(team.Token)
 		w := bytes.NewBufferString("")
 		if users, e := client.GetUsers(); e == nil {
 			for key, value := range ms[0].GetActive() {
@@ -132,16 +135,23 @@ func post(token string) {
 			}
 		}
 		if channels, _, e := client.GetConversationsForUser(&slack.GetConversationsForUserParameters{}); e == nil {
+			nowAccess := time.Now()
 			for _, channel := range channels {
-				client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false))
+				if _, _, e := client.PostMessage(channel.ID, slack.MsgOptionText(w.String(), false)); e == nil {
+					if team.Access != nowAccess {
+						team.Access = nowAccess
+						TablePut(team.Self, team)
+					}
+				}
 			}
 		}
 	}
 }
-func check(token string) {
+func check(team *Team) {
+	fmt.Println(team.Self.Name)
 	const interval = 5
 	ms, now := []Daily{}, time.Now().In(time.Local)
-	client := slack.New(token)
+	client := slack.New(team.Token)
 	res := TableGetAll(NewQuery("DAILY").Order("-Date").Limit(1), &ms)
 	if len(res) > 0 && TimeAlign(ms[0].Date) == TimeAlign(now) {
 		//nothing
@@ -166,47 +176,70 @@ func check(token string) {
 					activeMap[u.ID][(now.Hour()*60+now.Minute())/interval] = true
 				}
 			} else {
-				println(e)
+				fmt.Println(e)
 			}
 		}
 		fmt.Println(activeMap)
 		ms[0].SetActive(activeMap)
 		TablePut(ms[0].Self, &ms[0])
 	} else {
-		print(e)
+		fmt.Println(e)
 	}
 }
-func command(token, command string) {
-	if strings.Contains(command, "post") {
-		post(token)
-	}
-	if strings.Contains(command, "check") {
-		check(token)
+func teams(f func(*Team)) {
+	mt := []Team{}
+	wg := sync.WaitGroup{}
+	if TableGetAll(NewQuery("TEAM").Order("-Access").Limit(109), &mt) != nil {
+		for i, _ := range mt {
+			wg.Add(1)
+			go func(n * Team) {
+				defer wg.Done()
+				f(n)
+			}(&mt[i])
+		}
+		wg.Wait()
 	}
 }
 
 func main() {
 	Credential("default.json")
 	time.Local, _ = time.LoadLocation("Asia/Tokyo")
-	if len(os.Args) == 1 {
-		Handle("/command/", func(w Response, r Request) {
-			command(r.FormValue("token"), r.URL.Path)
-		})
-		Handle("/", func(w Response, r Request) {
-			WriteTemplate(w, nil, nil, "index.html")
-		})
-		Handle("/install", func(w Response, r Request) {
-			client_id := "19423426689.606115194753"
-			scope := "app_mentions:read channels:read chat:write commands incoming-webhook users:read"
-			if strings.Contains(r.URL.Path, "redirect") {
-				fmt.Fprintln(w, r.Form)
+	Handle("/command/", func(w Response, r Request) {
+		if strings.Contains(r.URL.Path, "post") {
+			teams(post)
+		}
+		if strings.Contains(r.URL.Path, "check") {
+			teams(check)
+		}
+	})
+	Handle("/install/", func(w Response, r Request) {
+		clientId := "19423426689.606115194753"
+		clientSecret := "69039563927271fad56a9eeffe8947b7"
+		scope := "app_mentions:read,channels:read,chat:write,commands,incoming-webhook,users:read"
+		redirect := "https://liquid-galaxy-307705.appspot.com/install/redirect"
+		//redirect = "http://localhost:8080/install/redirect"
+		if strings.Contains(r.URL.Path, "redirect") {
+			if resp, e := slack.GetOAuthV2Response(new(http.Client), clientId, clientSecret, r.FormValue("code"), redirect); e == nil {
+				fmt.Println(resp, resp.AccessToken)
+				v := Team{
+					Self:   NewNameKey("TEAM", resp.Team.ID),
+					Access: time.Now(),
+					Born:   time.Now(),
+					Token:  resp.AccessToken,
+				}
+				TablePut(v.Self, &v)
+				Redirect(w,r,"/")
 			} else {
-				Redirect(w, r, fmt.Sprintf("https://slack.com/oauth/authorize?client_id=%s&scope=%s&redirect_uri=%s", client_id, scope, url.QueryEscape("https://localhost:8080/install/redirect")))
+				fmt.Println(e)
 			}
-		})
-		Listen()
-	} else {
-		//あまり良い書き方ではない。
-		command("xoxb-19423426689-612454598432-QVlIU73UYj8sVtj2opGeAP7S", os.Args[1])
-	}
+		} else {
+			Redirect(w, r, fmt.Sprintf("https://slack.com/oauth/v2/authorize?client_id=%s&scope=%s&redirect_uri=%s", clientId, scope, url.QueryEscape(redirect)))
+		}
+	})
+	Handle("/", func(w Response, r Request) {
+		WriteTemplate(w, nil, Dict{
+			"rand": func() int { return rand.Int() },
+		}, "index.html")
+	})
+	Listen()
 }

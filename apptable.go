@@ -20,10 +20,13 @@ func NewClient() (*datastore.Client, context.Context) {
 func NewQuery(kind string) *datastore.Query {
 	return datastore.NewQuery(kind)
 }
-func NewKey(kind string) *datastore.Key {
+func NewKey(kind string) Key {
 	return datastore.IncompleteKey(kind, nil)
 }
-func TablePut(k *datastore.Key, v interface{}) *datastore.Key {
+func NewNameKey(kind,name string) Key{
+	return datastore.NameKey(kind,name,nil)
+}
+func TablePut(k *datastore.Key, v interface{}) Key {
 	if c, x := NewClient(); c != nil {
 		defer c.Close()
 		if k, err := c.Put(x, k, v); err != nil {
@@ -34,7 +37,7 @@ func TablePut(k *datastore.Key, v interface{}) *datastore.Key {
 	}
 	return nil
 }
-func TableGet(k *datastore.Key, v interface{}) *datastore.Key {
+func TableGet(k *datastore.Key, v interface{}) Key {
 	if c, x := NewClient(); c != nil {
 		defer c.Close()
 		if err := c.Get(x, k, v); err != nil {
@@ -45,7 +48,7 @@ func TableGet(k *datastore.Key, v interface{}) *datastore.Key {
 	}
 	return nil
 }
-func TableGetAll(q *datastore.Query, v interface{}) []*datastore.Key {
+func TableGetAll(q *datastore.Query, v interface{}) []Key {
 	if c, x := NewClient(); c != nil {
 		defer c.Close()
 		if keys, err := c.GetAll(x, q, v); err != nil {
